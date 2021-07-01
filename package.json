@@ -1,0 +1,25 @@
+{
+  "name": "hrid",
+  "version": "0.0.1",
+  "description": "PG library for truly ACID transactions",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rkatic/hrid.git"
+  },
+  "keywords": [
+    "postgresql",
+    "ACID",
+    "transactions",
+    "sql"
+  ],
+  "author": "Robert Katić",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rkatic/hrid/issues"
+  },
+  "homepage": "https://github.com/rkatic/hrid#readme"
+}
