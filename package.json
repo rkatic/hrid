@@ -2,9 +2,9 @@
   "name": "hrid",
   "version": "0.0.1",
   "description": "PG library for truly ACID transactions",
-  "main": "index.js",
+  "main": "./lib",
   "scripts": {
-    "test": "npm test"
+    "test": "tape -r ./env '{!(node_modules)/**/*.test.js,./*.test.js}' | tap-difflet"
   },
   "repository": {
     "type": "git",
@@ -17,9 +17,23 @@
     "sql"
   ],
   "author": "Robert Katić",
+  "engines": {
+    "node": ">=14"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/rkatic/hrid/issues"
   },
-  "homepage": "https://github.com/rkatic/hrid#readme"
+  "homepage": "https://github.com/rkatic/hrid#readme",
+  "devDependencies": {
+    "dotenv": "^10.0.0",
+    "dotenv-safe": "^8.2.0",
+    "pg": "^8.6.0",
+    "tap-difflet": "^0.7.2",
+    "tape": "^5.2.2"
+  },
+  "peerDependencies": {
+    "pg": "8.x"
+  },
+  "dependencies": {}
 }
