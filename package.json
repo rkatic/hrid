@@ -1,6 +1,6 @@
 {
   "name": "hrid",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "PG library for truly ACID transactions",
   "main": "./lib",
   "scripts": {
