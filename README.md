@@ -2,11 +2,11 @@
 PG library for truly ACID transactions
 
 ## Why?
-Hrid is born from the need to have transaction management that will automatically serialize execution of (sub)transactions that share same DB connection so that queries of different transactions are not mixed together.
+Hrid is born from the need to have transaction management that will automatically serialize execution of (sub)transactions that share same DB connection, so that queries of different (sub)transactions are not mixed together.
 
-Additional care is taken in case of rollbacks of transactions, making sure no query will leak out in external execution context.
+Additional care is taken in case of rollbacks of transactions, making sure no query will leak out in an external execution context.
 
-This allows you to safely use `Promise.all` and to implement reusable code without having to predict the context where it will be used.
+This allows you to safely use `Promise.all` and to implement reusable code without having to predict/limit the context where it will be used.
 
 ## Installation
 
