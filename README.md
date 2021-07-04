@@ -2,7 +2,7 @@
 PG library for truly ACID transactions
 
 ## Why?
-Hrid is born from the need to have a transaction management that will automatically serialize execution of (sub)transactions that share same DB connection.
+Hrid is born from the need to have transaction management that will automatically serialize execution of (sub)transactions that share same DB connection.
 
 Basicity, you wrap your code in `db.tx(t => {...})` any time that a block should be transactional (atomic). No need to wary about what can or should not run concurrently depending on if `db` already runs in a single connection (transaction). When something makes sense to run concurrently, do it, use `Promise.all`, and Hrid will automatically serialize execution when required so that queries of different transactions are not mixed together.
 
