@@ -20,7 +20,7 @@ Your `db.js` could look like:
 const pg = require('pg')
 const { Database, sql } = require('hrid')
 
-// Don't store DB dates in Date!
+// Don't store DB dates in JS Date!
 pg.types.setTypeParser(1082, v => v)
 
 const pgPool = new pg.Pool({
