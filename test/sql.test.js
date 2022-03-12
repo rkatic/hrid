@@ -13,23 +13,16 @@ test('simple template', async t => {
 
   const res = sql`SELECT * FROM "${table}" WHERE data = ${data} AND age > ${18}`
 
-  t.is(res.toPlainQuery(), `SELECT * FROM "tab""le" WHERE data = array[1,'hel''lo','{"x":[1]}',array['world']] AND age > 18`)
-
-  const { text, values } = res.toPgQuery()
-  t.is(text, `SELECT * FROM "tab""le" WHERE data = $1 AND age > $2`)
-  t.deepEqual(values, [data, 18])
+  t.is(res.text, `SELECT * FROM "tab""le" WHERE data = array[1,'hel''lo','{"x":[1]}',array['world']] AND age > 18`)
 })
 
 test('template composition', async t => {
   const sql1 = sql`SELECT * FROM "table1" WHERE id = ANY(${[1, 2, 3]})`
   const sql2 = sql`SELECT * FROM "table2" WHERE ref IN (${sql1}) AND type = ${4}`
 
-  const plain = sql2.toPlainQuery()
-  const { text, values } = sql2.toPgQuery()
+  const plain = sql2.text
 
   t.is(plain, `SELECT * FROM "table2" WHERE ref IN (SELECT * FROM "table1" WHERE id = ANY(array[1,2,3])) AND type = 4`)
-  t.is(text, `SELECT * FROM "table2" WHERE ref IN (SELECT * FROM "table1" WHERE id = ANY($1)) AND type = $2`)
-  t.deepEqual(values, [[1, 2, 3], 4])
 })
 
 test('sql.update', async t => {
@@ -41,8 +34,7 @@ test('sql.update', async t => {
     returning: '*',
   })
 
-  const plain = sql1.toPlainQuery()
-  const { text, values } = sql1.toPgQuery()
+  const plain = sql1.text
 
   t.is(unindent(plain), unindentRaw`
     UPDATE "user"
@@ -51,16 +43,6 @@ test('sql.update', async t => {
       AND ("name","human") IS DISTINCT FROM ('Alex',true)
     RETURNING *
   `)
-
-  t.is(unindent(text), unindentRaw`
-    UPDATE "user"
-    SET ("name","human") = ($1,$2)
-    WHERE ("id" = $3)
-      AND ("name","human") IS DISTINCT FROM ($1,$2)
-    RETURNING *
-  `)
-
-  t.deepEqual(values, ['Alex', true, 1])
 })
 
 test('upsert with sql.insert', async t => {
@@ -73,8 +55,7 @@ test('upsert with sql.insert', async t => {
     returning: ['id'],
   })
 
-  const plain = upsertSql.toPlainQuery()
-  const { text, values } = upsertSql.toPgQuery()
+  const plain = upsertSql.text
 
   t.is(unindent(plain), unindentRaw`
     INSERT INTO "user" t ("id","name") VALUES
@@ -84,17 +65,6 @@ test('upsert with sql.insert', async t => {
     WHERE (t."name") IS DISTINCT FROM (Excluded."name")
     RETURNING "id"
   `)
-
-  t.is(unindent(text), unindentRaw`
-    INSERT INTO "user" t ("id","name") VALUES
-    ($1,$2)
-    ON CONFLICT ("id") DO UPDATE
-    SET ("name") = (Excluded."name")
-    WHERE (t."name") IS DISTINCT FROM (Excluded."name")
-    RETURNING "id"
-  `)
-
-  t.deepEqual(values, [1, 'Ivan'])
 })
 
 test('upsert of multiple rows with sql.insert', async t => {
@@ -111,8 +81,7 @@ test('upsert of multiple rows with sql.insert', async t => {
     returning: ['id'],
   })
 
-  const plain = upsertSql.toPlainQuery()
-  const { text, values } = upsertSql.toPgQuery()
+  const plain = upsertSql.text
 
   t.is(unindent(plain), unindentRaw`
     INSERT INTO "user" t ("id","name") VALUES
@@ -123,18 +92,6 @@ test('upsert of multiple rows with sql.insert', async t => {
     WHERE (t."name") IS DISTINCT FROM (Excluded."name")
     RETURNING "id"
   `)
-
-  t.is(unindent(text), unindentRaw`
-    INSERT INTO "user" t ("id","name") VALUES
-    ($1,$2),
-    ($3,$4)
-    ON CONFLICT ("id") DO UPDATE
-    SET ("name") = (Excluded."name")
-    WHERE (t."name") IS DISTINCT FROM (Excluded."name")
-    RETURNING "id"
-  `)
-
-  t.deepEqual(values, [1, 'Ivan', 2, 'Ante'])
 })
 
 test('upsert with sql.insert on minimal columns', async t => {
@@ -147,8 +104,7 @@ test('upsert with sql.insert on minimal columns', async t => {
     returning: ['id'],
   })
 
-  const plain = upsertSql.toPlainQuery()
-  const { text, values } = upsertSql.toPgQuery()
+  const plain = upsertSql.text
 
   t.is(unindent(plain), unindentRaw`
     INSERT INTO "user" t ("id") VALUES
@@ -156,15 +112,6 @@ test('upsert with sql.insert on minimal columns', async t => {
     ON CONFLICT ("id") DO NOTHING
     RETURNING "id"
   `)
-
-  t.is(unindent(text), unindentRaw`
-    INSERT INTO "user" t ("id") VALUES
-    ($1)
-    ON CONFLICT ("id") DO NOTHING
-    RETURNING "id"
-  `)
-
-  t.deepEqual(values, [7])
 })
 
 test('upsert with sql.insert on minimal columns but no skipEqual', async t => {
@@ -177,7 +124,7 @@ test('upsert with sql.insert on minimal columns but no skipEqual', async t => {
       onConflict: 'id',
       update: true,
     })
-    .toPlainQuery()
+    .text
   } catch (e) {
     error = e
   }
