@@ -29,9 +29,7 @@ const pgPool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
 })
 
-const db = new Database(pgPool, {
-  debug: process.env.NODE_ENV !== 'production',
-})
+const db = new Database(pgPool)
 
 module.exports = {
   db,
