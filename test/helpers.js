@@ -15,8 +15,10 @@ function connect (options) {
 }
 
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
+const tick = () => new Promise(resolve => process.nextTick(resolve))
 
 module.exports = {
   connect,
   delay,
+  tick,
 }
