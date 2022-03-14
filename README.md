@@ -25,11 +25,11 @@ const { Database, sql } = require('hrid')
 // Don't store DB dates in JS Date!
 pg.types.setTypeParser(1082, v => v)
 
-const pgPool = new pg.Pool({
+const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
 })
 
-const db = new Database(pgPool)
+const db = new Database(pool)
 
 module.exports = {
   db,
@@ -40,7 +40,7 @@ module.exports = {
 ## Use it
 
 ```js
-const { db } = require('./db')
+const { db, sql } = require('./db')
 
 async function getUserById (id) {
   const [ user ] = await db.query(sql`SELECT * FROM "user" WHERE "id" = ${id}`)
