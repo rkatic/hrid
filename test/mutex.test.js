@@ -9,12 +9,12 @@ test('sequential locking', async t => {
   let seq = []
 
   const job = async n => {
-    const lock = await mutex.lock()
+    const unlock = await mutex.lock()
     seq.push(n)
     delay(10)
     seq.push(-n)
 
-    lock.release()
+    unlock()
   }
 
   await Promise.all([1, 2, 3, 4, 5].map(job))
