@@ -20,14 +20,15 @@ test('parallel sub transactions', async t => {
     VALUES (${desc})
   `
 
-  async function runQueries (tx) {
-    for (const x of [1, 2, 3, 4, 5]) {
-      await tx.query(insertDescSql(`query ${x}`))
-      await delay(100)
+  const runQueries = (prefix, n, ms) => async db => {
+    let i = 0
+    for (const _ of Array(n)) {
+      await db.query(insertDescSql(`${prefix} ${++i}`))
+      await delay(ms)
     }
   }
 
-  async function runSubTx (tx) {
+  async function runFailingSubTx (tx) {
     await tx.tx(async tx => {
       await tx.query(insertDescSql('back-rolled'))
       await delay(2.5e3)
@@ -42,22 +43,35 @@ test('parallel sub transactions', async t => {
 
   await db.tx(async tx => {
     await Promise.all([
-      runQueries(tx),
-      runSubTx(tx).then(t.fail, t.ok),
+      runQueries('top', 2, 10)(tx),
+      tx.tx(runQueries('sub', 2, 5))
     ])
-
-    // const [ res ] = await tx.query(sql`SELECT 1 as "value"`)
-    // t.strictEqual(res.value, 1)
   })
 
-  const rows = await db.query(sql`SELECT "desc" FROM "test_tx"`)
+  await db.tx(async tx => {
+    await Promise.all([
+      runQueries('query', 5, 100)(tx),
+      runFailingSubTx(tx).then(t.fail, t.ok),
+    ])
+  })
 
-  t.deepEqual(rows, [
-    { desc: 'query 1' },
-    { desc: 'query 2' },
-    { desc: 'query 3' },
-    { desc: 'query 4' },
-    { desc: 'query 5' },
+  const rows = await db.query(sql`
+    SELECT "desc" FROM "test_tx"
+    ORDER BY "id"
+  `)
+  
+  const seq = rows.map(r => r.desc)
+
+  t.deepEqual(seq, [
+    'top 1',
+    'sub 1',
+    'sub 2',
+    'top 2',
+    'query 1',
+    'query 2',
+    'query 3',
+    'query 4',
+    'query 5',
   ])
 
   let allSettled = null
