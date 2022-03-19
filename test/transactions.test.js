@@ -97,3 +97,32 @@ test('parallel sub transactions', async t => {
 
   db.pool.end()
 })
+
+test('.try(..)', async t => {
+  const db = await connect()
+
+  await db.query(sql`ERR`).then(t.fail, t.ok)
+  await db.try(sql`ERR`).then(t.fail, t.ok)
+
+  await db.tx(async tx => {
+    await tx.query(sql`ERR`).catch(t.ok)
+
+    const [{ val }] = await tx.query(sql`SELECT 1 as "val"`)
+    return val
+  })
+  .then(t.fail, t.ok)
+
+  {
+    const res = await db.tx(async tx => {
+      await tx.try(sql`ERR`).catch(t.ok)
+  
+      const [{ val }] = await tx.query(sql`SELECT 1 as "val"`)
+      return val
+    })
+
+    t.strictEqual(res, 1)
+  }
+
+  db.pool.end()
+
+})
