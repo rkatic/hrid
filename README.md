@@ -1,6 +1,11 @@
 # Hrid
 PG transaction management done right.
 
+ - Minimal API
+ - Carefree JS concurrency **nested transactions** 
+ - Focused on **Read Committed** isolation level
+ - SQL builder via custom templeate string
+
 ## Why?
 Hrid is born from the need to have transaction management that will automatically serialize execution of (sub)transactions that share same DB connection, so that queries of different (sub)transactions are not mixed together.
 
