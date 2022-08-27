@@ -1,10 +1,5 @@
 # Hrid
-PG transaction management done right.
-
- - Minimal API
- - Carefree JS concurrency **nested transactions** 
- - Focused on **Read Committed** isolation level
- - SQL builder via custom templeate string
+Simple, concurrency-safe transaction management for PG. 
 
 ## Why?
 Hrid is born from the need to have transaction management that will automatically serialize execution of (sub)transactions that share same DB connection, so that queries of different (sub)transactions are not mixed together.
@@ -12,6 +7,8 @@ Hrid is born from the need to have transaction management that will automaticall
 Additional care is taken in case of rollbacks of transactions, making sure no query will leak in an external execution context.
 
 This allows you to safely use `Promise.all` and to implement reusable code without having to predict/limit the context where it will be used.
+
+Note: Hrid uses (default) READ COMMITTED isolation level, and to make transactions concurrently safe with multiple backend instances, you'll still have yo use implicit/explicit locks when needed. Hrid ensures that transactions (and related locks) opened by a backend instance are correctly handled (not mixed) even in highly concurrent JS logic (for example, by using `Promise.all`).
 
 ## Installation
 
